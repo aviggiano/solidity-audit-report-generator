@@ -7,8 +7,7 @@ interface Finding {
   file: string;
   line: string;
   description: string;
-  recommendation?: string;
-  references?: string;
+  [tag: string]: string;
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -74,29 +73,28 @@ function findAuditIssues(dirPath: string, findings: Finding[]): void {
     } else if (path.extname(file) === ".sol") {
       const fileContent = fs.readFileSync(filePath, "utf8");
       const lines = fileContent.split("\n");
-      lines.forEach((line, i) => {
-        if (line.trim().startsWith(AUDIT_ISSUE)) {
+      let i = 0;
+      lines.forEach((line) => {
+        if (!line.trim().startsWith(AUDIT_ISSUE)) {
+          i++;
+        } else {
+          const lineNumber = (i + 1).toString();
           const text = line.trim().replace(AUDIT_ISSUE, "");
-          const match = text.match(
-            /(.*)[ @recommendation (.*)[ @references (.*)]?]?/
-          );
-          if (!match) {
-            console.log(text);
-            return;
-          }
-          const [, idAndDescription, recommendation, references] =
-            match as string[];
-          const [id, ...desc] = idAndDescription.split(" ");
-          const description = desc.join(" ");
-          const lineNumber = (i + 1 + 1).toString();
-          findings.push({
+          const [id, ...rest] = text.split(" ");
+          const [description, ...tagsAndTagsDescriptions] = rest
+            .join(" ")
+            .split("@");
+          const finding: Finding = {
             file,
             line: lineNumber,
             id,
             description,
-            recommendation,
-            references,
+          };
+          tagsAndTagsDescriptions.forEach((tagAndTagDescription) => {
+            const [tag, ...tagDescription] = tagAndTagDescription.split(" ");
+            finding[tag] = tagDescription.join(" ");
           });
+          findings.push(finding);
         }
       });
     }
