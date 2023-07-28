@@ -14,8 +14,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "solidity-audit-report-generator.generateAuditReport",
-        "title": "Audit: Generate Report"
+        "command": "solidity-audit-report-generator.code4renaGenerateAuditReport",
+        "title": "Audit: Generate Report (Code4rena)"
+      },
+      {
+        "command": "solidity-audit-report-generator.sherlockGenerateAuditReport",
+        "title": "Audit: Generate Report (Sherlock)"
+      },
+      {
+        "command": "solidity-audit-report-generator.hatsGenerateAuditReport",
+        "title": "Audit: Generate Report (Hats)"
+      },
+      {
+        "command": "solidity-audit-report-generator.codehawksGenerateAuditReport",
+        "title": "Audit: Generate Report (CodeHawks)"
       }
     ]
   },

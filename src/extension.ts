@@ -10,66 +10,68 @@ interface Finding {
   [tag: string]: string;
 }
 
-export function activate(context: vscode.ExtensionContext) {
-  let disposable = vscode.commands.registerCommand(
-    "solidity-audit-report-generator.generateAuditReport",
-    () => {
-      const workspaceFolders = vscode.workspace.workspaceFolders;
+const platforms = ["code4rena", "sherlock", "hats", "codehawks"];
 
-      if (!workspaceFolders) {
-        vscode.window.showInformationMessage("No workspace is opened.");
-        return;
+function generateXmlReports(context: vscode.ExtensionContext) {
+  for (const platform of platforms) {
+    let disposable = vscode.commands.registerCommand(
+      `solidity-audit-report-generator.${platform}GenerateAuditReport`,
+      () => {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        vscode.window.showInformationMessage(`Generating audit report...`);
+
+        if (!workspaceFolders) {
+          vscode.window.showInformationMessage("No workspace is opened.");
+          return;
+        }
+
+        const dir = workspaceFolders[0].uri.fsPath;
+        const findingsDir = path.join(dir, "findings");
+        if (!fs.existsSync(findingsDir)) {
+          fs.mkdirSync(findingsDir);
+        }
+
+        const findings: Finding[] = [];
+
+        workspaceFolders.forEach((folder) => {
+          const folderPath = folder.uri.fsPath;
+          extractFindings(folderPath, findings);
+        });
+
+        findings.map((finding) => {
+          const auditCommentsFilePath = path.join(
+            findingsDir,
+            `${finding.id}.xml`
+          );
+          const body = Object.keys(finding)
+            .map((key) => `<${key}>${finding[key]}</${key}>`)
+            .join("\n");
+          fs.writeFileSync(auditCommentsFilePath, body, "utf8");
+        });
       }
+    );
 
-      const dir = workspaceFolders[0].uri.fsPath;
-      const findingsDir = path.join(dir, "findings");
-      if (!fs.existsSync(findingsDir)) {
-        fs.mkdirSync(findingsDir);
-      }
-
-      const findings: Finding[] = [];
-
-      workspaceFolders.forEach((folder) => {
-        const folderPath = folder.uri.fsPath;
-        findAuditIssues(folderPath, findings);
-      });
-
-      findings.map((finding) => {
-        const auditCommentsFilePath = path.join(
-          findingsDir,
-          `${finding.id}.xml`
-        );
-        vscode.window.showInformationMessage(`Finding ${finding.id} saved`);
-        console.log(finding);
-        const body = [
-          `<file>${finding.file}</file>`,
-          `<line>${finding.line}</line>`,
-          `<description>${finding.description}</description>`,
-          finding.recommendation
-            ? `<recommendation>${finding.recommendation}</recommendation>`
-            : undefined,
-          finding.references
-            ? `<references>${finding.references}</references>`
-            : undefined,
-        ]
-          .filter((x) => x)
-          .join("\n");
-        fs.writeFileSync(auditCommentsFilePath, body, "utf8");
-      });
-    }
-  );
-
-  context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable);
+  }
 }
 
-function findAuditIssues(dirPath: string, findings: Finding[]): void {
+function generateMarkdownReports(context: vscode.ExtensionContext) {
+  console.log("TODO");
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  generateXmlReports(context);
+  generateMarkdownReports(context);
+}
+
+function extractFindings(dirPath: string, findings: Finding[]): void {
   const AUDIT_ISSUE = "// @audit-issue ";
 
   fs.readdirSync(dirPath).forEach((file) => {
     const filePath = path.join(dirPath, file);
 
     if (fs.statSync(filePath).isDirectory()) {
-      findAuditIssues(filePath, findings);
+      extractFindings(filePath, findings);
     } else if (path.extname(file) === ".sol") {
       const fileContent = fs.readFileSync(filePath, "utf8");
       const lines = fileContent.split("\n");
