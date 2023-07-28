@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "solidity-audit-report-generator.generateAuditReport",
-        "title": "Generate Audit Report"
+        "title": "Audit: Generate Report"
       }
     ]
   },
