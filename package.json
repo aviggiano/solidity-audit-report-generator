@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "solidity-audit-report-generator.helloWorld",
-        "title": "Hello World"
+        "command": "solidity-audit-report-generator.generateAuditReport",
+        "title": "Generate Audit Report"
       }
     ]
   },
