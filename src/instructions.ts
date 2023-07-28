@@ -1,16 +1,15 @@
 const general = `
-Create a audit report in markdown format with the provided template and vulnerability information below.
+Create an audit report in markdown format with the provided template and vulnerability informations listed below.
 `;
 
-const sherlock = `
-`;
+const sherlock = ``;
 
 const hats = ``;
 
 const codehawks = ``;
 
 const code4rena = `
-For the "Issue Type" description, you should select only one of the following issue types:
+For the "Issue Type", you should select one of the following issue types:
 
 <issue-types>
 - Access Control
