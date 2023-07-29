@@ -25,7 +25,6 @@ This extension provides the following key functionalities:
 ![Markdown file report updated](images/french.png)
 
 
-> Tip: This extension is ideal for Solidity developers, smart contract auditors, and anyone who wishes to automate and enhance the audit reporting process.
 > Tip: This extension is best paired with [Solidity Visual Developer](https://marketplace.visualstudio.com/items?itemName=tintinweb.solidity-visual-auditor) by ConsenSys Diligence.
 
 ## Requirements
