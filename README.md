@@ -6,15 +6,15 @@ The Solidity Audit Report Generator is a VS Code extension that automatically ge
 
 This extension provides the following key functionalities:
 
-1. Reads `.sol` Solidity files in your workspace and scans for comments starting with `// @audit-issue`.
+1. Reads `.sol` Solidity files in your workspace and scans for comments starting with `// @audit-issue`. You can add additional information using `@` tags, such as `@recommendation`, `@references`, and any other you like. These will be added to the prompt that will generate the report.
 
 ![Example @audit comment](images/example.png)
 
-2. Combines these comments with audit contest templates and the capabilities of ChatGPT to generate a detailed audit report.
+2. Combines these comments with audit contest templates and the use ChatGPT to generate a detailed audit report.
 
 ![Markdown file with report](images/markdown.png)
 
-3. Outputs a XML containing the extracted information from your findings, a ChatGPT prompt file used to query OpenAI's API, and a markdown file containing the generated report.
+3. Outputs a XML containing the extracted information from your findings, including additional `@` tags from your issue description, a ChatGPT prompt file used to query OpenAI's API, and a markdown file containing the generated report.
 
 ![XML file with vulnerability information](images/xml.png)
 ![ChatGPT prompt file](images/prompt.png)
@@ -45,6 +45,7 @@ No known issues at this time.
 
 | Version | Release Notes |
 | --- | --- |
+| 0.0.3 | Improve documentation |
 | 0.0.2 | Add extension icon |
 | 0.0.1 | Initial release of Solidity Audit Report Generator |
 
