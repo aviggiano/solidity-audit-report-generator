@@ -1,6 +1,10 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import * as chatgpt from "./chatgpt";
+import * as templates from "./templates";
+import * as instructions from "./instructions";
+import type { Platform } from "./types";
 
 interface Finding {
   id: string;
@@ -10,13 +14,13 @@ interface Finding {
   [tag: string]: string;
 }
 
-const platforms = ["code4rena", "sherlock", "hats", "codehawks"];
+const platforms: Platform[] = ["code4rena", "sherlock", "hats", "codehawks"];
 
-function generateXmlReports(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
   for (const platform of platforms) {
     let disposable = vscode.commands.registerCommand(
       `solidity-audit-report-generator.${platform}GenerateAuditReport`,
-      () => {
+      async () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         vscode.window.showInformationMessage(`Generating audit report...`);
 
@@ -38,15 +42,38 @@ function generateXmlReports(context: vscode.ExtensionContext) {
           extractFindings(folderPath, findings);
         });
 
-        findings.map((finding) => {
-          const auditCommentsFilePath = path.join(
-            findingsDir,
-            `${finding.id}.xml`
-          );
-          const body = Object.keys(finding)
+        findings.map(async (finding) => {
+          const xml = Object.keys(finding)
             .map((key) => `<${key}>${finding[key]}</${key}>`)
             .join("\n");
-          fs.writeFileSync(auditCommentsFilePath, body, "utf8");
+          fs.writeFileSync(
+            path.join(findingsDir, `${finding.id}.xml`),
+            xml,
+            "utf8"
+          );
+
+          const apiKey = await getApiKey();
+          if (apiKey) {
+            const prompt = [
+              `${instructions.general}${instructions.customInstructions[platform]}\n`,
+              `<template>\n${templates[platform]}\n</template>`,
+              `<vulnerability-information>\n${xml}\n</vulnerability-information>`,
+            ].join("\n");
+            fs.writeFileSync(
+              path.join(findingsDir, `${finding.id}.prompt`),
+              prompt,
+              "utf8"
+            );
+
+            const markdown = await chatgpt.getReport(apiKey, prompt);
+            if (markdown) {
+              fs.writeFileSync(
+                path.join(findingsDir, `${finding.id}.md`),
+                markdown,
+                "utf8"
+              );
+            }
+          }
         });
       }
     );
@@ -55,17 +82,38 @@ function generateXmlReports(context: vscode.ExtensionContext) {
   }
 }
 
-function generateMarkdownReports(context: vscode.ExtensionContext) {
-  console.log("TODO");
-}
+async function getApiKey(): Promise<string | undefined> {
+  const apiKey: string | undefined = vscode.workspace
+    .getConfiguration()
+    .get("solidity-audit-report-generator.apiKey");
 
-export function activate(context: vscode.ExtensionContext) {
-  generateXmlReports(context);
-  generateMarkdownReports(context);
+  if (apiKey) {
+    return apiKey;
+  }
+
+  const value = await vscode.window.showInputBox({
+    prompt: "Please enter your OpenAI API key",
+    placeHolder: "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  });
+  if (!value) {
+    vscode.window.showErrorMessage("You did not enter an API key");
+    return undefined;
+  } else {
+    await vscode.workspace
+      .getConfiguration()
+      .update(
+        "solidity-audit-report-generator.apiKey",
+        value,
+        vscode.ConfigurationTarget.Global
+      );
+    return value;
+  }
 }
 
 function extractFindings(dirPath: string, findings: Finding[]): void {
+  const AUDIT = "// @audit";
   const AUDIT_ISSUE = "// @audit-issue ";
+  const OFFSET = 10;
 
   fs.readdirSync(dirPath).forEach((file) => {
     const filePath = path.join(dirPath, file);
@@ -75,22 +123,32 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
     } else if (path.extname(file) === ".sol") {
       const fileContent = fs.readFileSync(filePath, "utf8");
       const lines = fileContent.split("\n");
+      const original = lines.filter((line) => !line.trim().startsWith(AUDIT));
       let i = 0;
       lines.forEach((line) => {
-        if (!line.trim().startsWith(AUDIT_ISSUE)) {
+        if (!line.trim().startsWith(AUDIT)) {
           i++;
-        } else {
-          const lineNumber = (i + 1).toString();
+        } else if (line.trim().startsWith(AUDIT_ISSUE)) {
+          const lineNumber = i + 1;
           const text = line.trim().replace(AUDIT_ISSUE, "");
           const [id, ...rest] = text.split(" ");
           const [description, ...tagsAndTagsDescriptions] = rest
             .join(" ")
             .split("@");
+          const snippet = [
+            ...original.slice(Math.max(0, lineNumber - OFFSET), lineNumber - 1),
+            line,
+            ...original.slice(
+              lineNumber - 1,
+              Math.min(original.length, lineNumber + OFFSET)
+            ),
+          ].join("\n");
           const finding: Finding = {
             file,
-            line: lineNumber,
+            line: lineNumber.toString(),
             id,
             description,
+            snippet,
           };
           tagsAndTagsDescriptions.forEach((tagAndTagDescription) => {
             const [tag, ...tagDescription] = tagAndTagDescription.split(" ");
