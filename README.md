@@ -43,6 +43,9 @@ No known issues at this time.
 
 ## Release Notes
 
-### 0.0.1
+| Version | Release Notes |
+| --- | --- |
+| 0.0.2 | Add extension icon |
+| 0.0.1 | Initial release of Solidity Audit Report Generator |
 
-Initial release of Solidity Audit Report Generator
+
