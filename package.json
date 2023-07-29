@@ -2,7 +2,7 @@
   "name": "solidity-audit-report-generator",
   "displayName": "Solidity Audit Report Generator",
   "description": "Solidity Audit Report Generator for Code4rena, Sherlock, Hats, CodeHawks, and user-defined templates",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "aviggiano",
   "icon": "images/icon.png",
   "engines": {
