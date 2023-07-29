@@ -30,7 +30,7 @@ function activateGenerateAuditReportCommands(context: vscode.ExtensionContext) {
         }
 
         const dir = workspaceFolders[0].uri.fsPath;
-        const reportDir = path.join(dir, "findings");
+        const reportDir = path.join(dir, "report");
         if (!fs.existsSync(reportDir)) {
           fs.mkdirSync(reportDir);
         }
