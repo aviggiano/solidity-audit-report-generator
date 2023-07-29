@@ -2,11 +2,16 @@
   "name": "solidity-audit-report-generator",
   "displayName": "Solidity Audit Report Generator",
   "description": "Solidity Audit Report Generator for Code4rena, Sherlock, Hats, CodeHawks, and user-defined templates",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "aviggiano",
   "icon": "images/icon.png",
+  "license": "MIT",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.70.0"
+  },
+ "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
   },
   "categories": [
     "Programming Languages"
@@ -14,10 +19,21 @@
   "bugs": {
       "url": "https://github.com/aviggiano/solidity-audit-report-generator/issues"
   },
+ "homepage": "https://github.com/aviggiano/solidity-audit-report-generator/blob/main/README.md",
+ "extensionKind": [
+    "ui",
+    "workspace"
+  ],
   "keywords": [
       "solidity",
       "ethereum",
       "blockchain",
+      "evm",
+      "certik",
+      "sherlock",
+      "code4areana",
+      "foundry",
+      "hardhat",
       "security",
       "audit",
       "review",
@@ -30,7 +46,13 @@
     "type": "git",
     "url": "https://github.com/aviggiano/solidity-audit-report-generator.git"
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:**/foundry.toml",
+    "workspaceContains:**/.dapprc",
+    "workspaceContains:**/.foundryrc",
+    "workspaceContains:**/hardhat.config.js",
+    "workspaceContains:**/hardhat.config.ts"
+],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
