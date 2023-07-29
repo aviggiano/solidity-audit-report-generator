@@ -38,6 +38,10 @@
       {
         "command": "solidity-audit-report-generator.codehawksGenerateAuditReport",
         "title": "Audit: Generate Report (CodeHawks)"
+      },
+      {
+        "command": "solidity-audit-report-generator.regenerateReportFromPrompt",
+        "title": "Audit: Regenerate Report From Prompt"
       }
     ]
   },

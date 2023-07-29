@@ -14,11 +14,11 @@ interface Finding {
   [tag: string]: string;
 }
 
-const platforms: Platform[] = ["code4rena", "sherlock", "hats", "codehawks"];
+function activateGenerateAuditReportCommands(context: vscode.ExtensionContext) {
+  const platforms: Platform[] = ["code4rena", "sherlock", "hats", "codehawks"];
 
-export function activate(context: vscode.ExtensionContext) {
   for (const platform of platforms) {
-    let disposable = vscode.commands.registerCommand(
+    const command = vscode.commands.registerCommand(
       `solidity-audit-report-generator.${platform}GenerateAuditReport`,
       async () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -30,9 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         const dir = workspaceFolders[0].uri.fsPath;
-        const findingsDir = path.join(dir, "findings");
-        if (!fs.existsSync(findingsDir)) {
-          fs.mkdirSync(findingsDir);
+        const reportDir = path.join(dir, "findings");
+        if (!fs.existsSync(reportDir)) {
+          fs.mkdirSync(reportDir);
         }
 
         const findings: Finding[] = [];
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
             .map((key) => `<${key}>${finding[key]}</${key}>`)
             .join("\n");
           fs.writeFileSync(
-            path.join(findingsDir, `${finding.id}.xml`),
+            path.join(reportDir, `${finding.id}.xml`),
             xml,
             "utf8"
           );
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
               `<vulnerability-information>\n${xml}\n</vulnerability-information>`,
             ].join("\n");
             fs.writeFileSync(
-              path.join(findingsDir, `${finding.id}.prompt`),
+              path.join(reportDir, `${finding.id}.prompt`),
               prompt,
               "utf8"
             );
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             const markdown = await chatgpt.getReport(apiKey, prompt);
             if (markdown) {
               fs.writeFileSync(
-                path.join(findingsDir, `${finding.id}.md`),
+                path.join(reportDir, `${finding.id}.md`),
                 markdown,
                 "utf8"
               );
@@ -78,8 +78,58 @@ export function activate(context: vscode.ExtensionContext) {
       }
     );
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(command);
   }
+}
+
+function activateRegenerateReportFromPromptCommand(
+  context: vscode.ExtensionContext
+) {
+  const regenerateReportFromPrompt = vscode.commands.registerCommand(
+    "solidity-audit-report-generator.regenerateReportFromPrompt",
+    async () => {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (!activeEditor) {
+        vscode.window.showInformationMessage("No file is currently open.");
+        return;
+      }
+
+      const currentFilePath = activeEditor.document.fileName;
+      if (!currentFilePath.endsWith(".prompt")) {
+        vscode.window.showInformationMessage(
+          "The current file does not have the .prompt suffix."
+        );
+        return;
+      }
+
+      vscode.window.showInformationMessage(
+        `Regenerating audit report from prompt...`
+      );
+
+      const apiKey = await getApiKey();
+      if (!apiKey) {
+        return;
+      }
+
+      const prompt = activeEditor.document.getText();
+
+      const markdown = await chatgpt.getReport(apiKey, prompt);
+      if (markdown) {
+        fs.writeFileSync(
+          currentFilePath.replace(".prompt", ".md"),
+          markdown,
+          "utf8"
+        );
+      }
+    }
+  );
+
+  context.subscriptions.push(regenerateReportFromPrompt);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  activateGenerateAuditReportCommands(context);
+  activateRegenerateReportFromPromptCommand(context);
 }
 
 async function getApiKey(): Promise<string | undefined> {
@@ -132,16 +182,18 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
           const lineNumber = i + 1;
           const text = line.trim().replace(AUDIT_ISSUE, "");
           const [id, ...rest] = text.split(" ");
-          const [description, ...tagsAndTagsDescriptions] = rest
+          const [description, ...tagsAndTagDescriptions] = rest
             .join(" ")
             .split("@");
           const snippet = [
+            "",
             ...original.slice(Math.max(0, lineNumber - OFFSET), lineNumber - 1),
             line,
             ...original.slice(
               lineNumber - 1,
               Math.min(original.length, lineNumber + OFFSET)
             ),
+            "",
           ].join("\n");
           const finding: Finding = {
             file,
@@ -150,7 +202,7 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
             description,
             snippet,
           };
-          tagsAndTagsDescriptions.forEach((tagAndTagDescription) => {
+          tagsAndTagDescriptions.forEach((tagAndTagDescription) => {
             const [tag, ...tagDescription] = tagAndTagDescription.split(" ");
             finding[tag] = tagDescription.join(" ");
           });
