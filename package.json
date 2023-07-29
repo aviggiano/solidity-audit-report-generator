@@ -3,12 +3,32 @@
   "displayName": "Solidity Audit Report Generator",
   "description": "Solidity Audit Report Generator for Code4rena, Sherlock, Hats, CodeHawks, and user-defined templates",
   "version": "0.0.1",
+  "publisher": "aviggiano",
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
+  "bugs": {
+      "url": "https://github.com/aviggiano/solidity-audit-report-generator/issues"
+  },
+  "keywords": [
+      "solidity",
+      "ethereum",
+      "blockchain",
+      "security",
+      "audit",
+      "review",
+      "chatgpt",
+      "report",
+      "solidity security",
+      "solidity audit"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aviggiano/solidity-audit-report-generator.git"
+  },
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
