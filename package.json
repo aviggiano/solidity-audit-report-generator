@@ -2,14 +2,14 @@
   "name": "solidity-audit-report-generator",
   "displayName": "Solidity Audit Report Generator",
   "description": "Solidity Audit Report Generator for Code4rena, Sherlock, Hats, CodeHawks, and user-defined templates",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "aviggiano",
   "icon": "images/icon.png",
   "license": "MIT",
   "engines": {
     "vscode": "^1.70.0"
   },
- "galleryBanner": {
+  "galleryBanner": {
     "color": "#C80000",
     "theme": "dark"
   },
@@ -17,30 +17,31 @@
     "Programming Languages"
   ],
   "bugs": {
-      "url": "https://github.com/aviggiano/solidity-audit-report-generator/issues"
+    "url": "https://github.com/aviggiano/solidity-audit-report-generator/issues"
   },
- "homepage": "https://github.com/aviggiano/solidity-audit-report-generator/blob/main/README.md",
- "extensionKind": [
+  "homepage": "https://github.com/aviggiano/solidity-audit-report-generator/blob/main/README.md",
+  "extensionKind": [
     "ui",
     "workspace"
   ],
   "keywords": [
-      "solidity",
-      "ethereum",
-      "blockchain",
-      "evm",
-      "certik",
-      "sherlock",
-      "code4areana",
-      "foundry",
-      "hardhat",
-      "security",
-      "audit",
-      "review",
-      "chatgpt",
-      "report",
-      "solidity security",
-      "solidity audit"
+    "solidity",
+    "ethereum",
+    "blockchain",
+    "evm",
+    "sherlock",
+    "code4areana",
+    "hats",
+    "codehawks",
+    "foundry",
+    "hardhat",
+    "security",
+    "audit",
+    "review",
+    "chatgpt",
+    "report",
+    "solidity security",
+    "solidity audit"
   ],
   "repository": {
     "type": "git",
@@ -52,7 +53,7 @@
     "workspaceContains:**/.foundryrc",
     "workspaceContains:**/hardhat.config.js",
     "workspaceContains:**/hardhat.config.ts"
-],
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
@@ -81,6 +82,10 @@
       {
         "command": "solidity-audit-report-generator.codehawksGenerateAuditReport",
         "title": "Audit: Generate Report (CodeHawks)"
+      },
+      {
+        "command": "solidity-audit-report-generator.generateAuditSummary",
+        "title": "Audit: Generate Summary"
       },
       {
         "command": "solidity-audit-report-generator.regenerateReportFromPrompt",
@@ -116,6 +121,7 @@
     "webpack-cli": "^5.1.1"
   },
   "dependencies": {
-    "openai": "^3.3.0"
+    "openai": "^3.3.0",
+    "tablemark": "^3.0.0"
   }
 }

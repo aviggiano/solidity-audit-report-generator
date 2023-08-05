@@ -45,7 +45,8 @@ No known issues at this time.
 
 | Version | Release Notes |
 | --- | --- |
-| 0.0.4 | Upgraded VSCode semver to ^1.70.0 per some users not being able to install about 1.80+ being too strict. Included Activation Events. |
+| 0.0.5 | Include "Audit: Generate Audit Summary" command that creates a summary.md file with a markdown table of findings |
+| 0.0.4 | Upgraded VSCode semver to ^1.70.0 per some users not being able to install about 1.80+ being too strict. Included Activation Events |
 | 0.0.3 | Improve documentation |
 | 0.0.2 | Add extension icon |
 | 0.0.1 | Initial release of Solidity Audit Report Generator |

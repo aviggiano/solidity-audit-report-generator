@@ -4,6 +4,7 @@ import * as path from "path";
 import * as chatgpt from "./chatgpt";
 import * as templates from "./templates";
 import * as instructions from "./instructions";
+import tablemark from "tablemark";
 import type { Platform } from "./types";
 
 interface Finding {
@@ -42,7 +43,13 @@ function activateGenerateAuditReportCommands(context: vscode.ExtensionContext) {
           extractFindings(folderPath, findings);
         });
 
-        findings.map(async (finding) => {
+        const formattedFindings = findings.map((finding) => {
+          const result: any = { ...finding };
+          delete result.path;
+          return result;
+        });
+
+        formattedFindings.map(async (finding) => {
           const xml = Object.keys(finding)
             .map((key) => `<${key}>${finding[key]}</${key}>`)
             .join("\n");
@@ -80,6 +87,53 @@ function activateGenerateAuditReportCommands(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(command);
   }
+}
+
+function activateGenerateAuditSummaryCommand(context: vscode.ExtensionContext) {
+  const command = vscode.commands.registerCommand(
+    `solidity-audit-report-generator.generateAuditSummary`,
+    async () => {
+      const workspaceFolders = vscode.workspace.workspaceFolders;
+      vscode.window.showInformationMessage(`Generating audit summary...`);
+
+      if (!workspaceFolders) {
+        vscode.window.showInformationMessage("No workspace is opened.");
+        return;
+      }
+
+      const dir = workspaceFolders[0].uri.fsPath;
+      const reportDir = path.join(dir, "report");
+      if (!fs.existsSync(reportDir)) {
+        fs.mkdirSync(reportDir);
+      }
+
+      const findings: Finding[] = [];
+
+      workspaceFolders.forEach((folder) => {
+        const folderPath = folder.uri.fsPath;
+        extractFindings(folderPath, findings);
+      });
+
+      const formattedFindings = findings.map((finding) => {
+        const result: any = { ...finding };
+        delete result.snippet;
+        delete result.file;
+        delete result.line;
+        delete result.path;
+        result.id = `[${result.id}](${finding.path.replace(dir, "")}#L${
+          finding.line
+        })`;
+        return result;
+      });
+      formattedFindings[0].id += "&nbsp;".repeat(5);
+
+      const summary = tablemark(formattedFindings);
+
+      fs.writeFileSync(path.join(reportDir, `summary.md`), summary, "utf8");
+    }
+  );
+
+  context.subscriptions.push(command);
 }
 
 function activateRegenerateReportFromPromptCommand(
@@ -130,6 +184,7 @@ function activateRegenerateReportFromPromptCommand(
 export function activate(context: vscode.ExtensionContext) {
   activateGenerateAuditReportCommands(context);
   activateRegenerateReportFromPromptCommand(context);
+  activateGenerateAuditSummaryCommand(context);
 }
 
 async function getApiKey(): Promise<string | undefined> {
@@ -196,6 +251,7 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
             "",
           ].join("\n");
           const finding: Finding = {
+            path: filePath,
             file,
             line: lineNumber.toString(),
             id,
