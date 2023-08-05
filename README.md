@@ -10,7 +10,7 @@ This extension provides the following key functionalities:
 
 ![Example @audit comment](images/example.png)
 
-2. Combines these comments with audit contest templates and the use ChatGPT to generate a detailed audit report.
+2. Combines these comments with audit contest templates and uses ChatGPT to generate a detailed audit report.
 
 ![Markdown file with report](images/markdown.png)
 
