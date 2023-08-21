@@ -6,6 +6,7 @@ import * as templates from "./templates";
 import * as instructions from "./instructions";
 import tablemark from "tablemark";
 import type { Platform } from "./types";
+import tags from "./tags";
 
 interface Finding {
   id: string;
@@ -236,7 +237,11 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
         } else if (line.trim().startsWith(AUDIT_ISSUE)) {
           const lineNumber = i + 1;
           const text = line.trim().replace(AUDIT_ISSUE, "");
-          const [id, ...rest] = text.split(" ");
+          let [id, ...rest] = text.split(" ");
+          const maybeTag = rest.join('')
+          if(tags[maybeTag]) {
+            rest = tags[maybeTag].split(' ')
+          }
           const [description, ...tagsAndTagDescriptions] = rest
             .join(" ")
             .split("@");

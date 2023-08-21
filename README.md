@@ -1,4 +1,4 @@
-# solidity-audit-report-generator README
+# solidity-audit-report-generator
 
 The Solidity Audit Report Generator is a VS Code extension that automatically generates audit reports based on contest templates, ChatGPT, and `// @audit` comments
 
@@ -25,6 +25,14 @@ This extension provides the following key functionalities:
 ![Markdown file report updated](images/french.png)
 
 
+5. Generates a report summary
+
+![Report summary](images/summary.png)
+
+6. Generates a finding from predefined issues
+
+![Tags usage](images/tags.png)
+
 > Tip: This extension is best paired with [Solidity Visual Developer](https://marketplace.visualstudio.com/items?itemName=tintinweb.solidity-visual-auditor) by ConsenSys Diligence.
 
 ## Requirements
@@ -45,6 +53,7 @@ No known issues at this time.
 
 | Version | Release Notes |
 | --- | --- |
+| 0.0.6 | Add tags feature to generate report from predefined issues |
 | 0.0.5 | Include "Audit: Generate Audit Summary" command that creates a summary.md file with a markdown table of findings |
 | 0.0.4 | Upgraded VSCode semver to ^1.70.0 per some users not being able to install about 1.80+ being too strict. Included Activation Events |
 | 0.0.3 | Improve documentation |

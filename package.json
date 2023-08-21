@@ -2,7 +2,7 @@
   "name": "solidity-audit-report-generator",
   "displayName": "Solidity Audit Report Generator",
   "description": "Solidity Audit Report Generator for Code4rena, Sherlock, Hats, CodeHawks, and user-defined templates",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "aviggiano",
   "icon": "images/icon.png",
   "license": "MIT",
@@ -95,6 +95,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
+    "p": "vsce package",
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
