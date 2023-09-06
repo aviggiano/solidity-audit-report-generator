@@ -28,15 +28,15 @@ Manual Review
 
 ## Recommendation`;
 
-export const hats = `# Title
+export const hats = `**Title**
 
-# Description
+**Description**
 
-# Attack scenario
+**Attack Scenario**
 
-# Proof of Concept
+**Proof of Concept**
 
-# Recommendation`;
+**Recommendation**`;
 
 export const codehawks = `## Title
 

@@ -7,6 +7,7 @@ import * as instructions from "./instructions";
 import tablemark from "tablemark";
 import type { Platform } from "./types";
 import tags from "./tags";
+import severities from "./severities";
 
 interface Finding {
   id: string;
@@ -116,15 +117,23 @@ function activateGenerateAuditSummaryCommand(context: vscode.ExtensionContext) {
       });
 
       const formattedFindings = findings.map((finding) => {
-        const result: any = { ...finding };
-        delete result.snippet;
-        delete result.file;
-        delete result.line;
-        delete result.path;
-        result.id = `[${result.id}](${finding.path.replace(dir, "")}#L${
-          finding.line
-        })`;
-        return result;
+        return {
+          id: `[${finding.id}](${finding.path.replace(dir, "")}#L${finding.line
+            })`,
+          description: finding.description,
+        }
+      }).sort((a, b) => {
+        const matchA = a.id.match(/\[(\w)\-(\d+)\]/)
+        const matchB = b.id.match(/\[(\w)\-(\d+)\]/)
+        const idA = matchA ? matchA[2] : ''
+        const idB = matchB ? matchB[2] : ''
+        return idA.localeCompare(idB)
+      }).sort((a, b) => {
+        const matchA = a.id.match(/\[(\w)\-(\d+)\]/)
+        const matchB = b.id.match(/\[(\w)\-(\d+)\]/)
+        const severityA = matchA ? matchA[1] : ''
+        const severityB = matchB ? matchB[1] : ''
+        return severities[severityA] - severities[severityB]
       });
       formattedFindings[0].id += "&nbsp;".repeat(5);
 
@@ -239,7 +248,7 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
           const text = line.trim().replace(AUDIT_ISSUE, "");
           let [id, ...rest] = text.split(" ");
           const maybeTag = rest.join('')
-          if(tags[maybeTag]) {
+          if (tags[maybeTag]) {
             rest = tags[maybeTag].split(' ')
           }
           const [description, ...tagsAndTagDescriptions] = rest
@@ -274,4 +283,4 @@ function extractFindings(dirPath: string, findings: Finding[]): void {
   });
 }
 
-export function deactivate() {}
+export function deactivate() { }
